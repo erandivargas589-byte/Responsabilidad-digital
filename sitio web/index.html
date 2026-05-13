@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsabilidad Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;background:#050816;color:white;overflow-x:hidden}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1}
+#runnerCanvas{position:relative;top:auto;left:auto;width:100%;height:100%;z-index:1;display:block}
+body::before{content:'';position:fixed;width:100%;height:100%;background:radial-gradient(circle at top,#1d2671,#050816 60%);z-index:-2}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-thumb{background:#00e5ff;border-radius:20px}
+.loader{position:fixed;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;font-size:2rem;font-family:'Orbitron';letter-spacing:5px;z-index:99999;color:#00f7ff;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.4;transform:scale(1.1)}}
+#welcomeModal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;z-index:9999}
+.modal-content{width:90%;max-width:900px;padding:50px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.2);border-radius:30px;backdrop-filter:blur(20px);text-align:center;box-shadow:0 0 50px #00e5ff;animation:fadeIn 1.5s;position:relative}
+@keyframes fadeIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.closeModal{position:absolute;top:20px;right:25px;font-size:2rem;cursor:pointer;color:#00e5ff}
+.modal-content h1{font-family:'Orbitron';font-size:3rem;margin-bottom:20px;background:linear-gradient(90deg,#00e5ff,#d500f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-btn{padding:18px 45px;font-size:1.2rem;border:none;border-radius:50px;background:linear-gradient(90deg,#00e5ff,#d500f9);color:white;margin-top:30px;cursor:pointer;box-shadow:0 0 30px #00e5ff;transition:.4s}
+.hero-btn:hover{transform:scale(1.08);box-shadow:0 0 60px #00e5ff}
+header{position:fixed;top:0;width:100%;padding:15px 30px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.4);backdrop-filter:blur(20px);z-index:1000;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo{font-family:'Orbitron';font-size:1.4rem;color:#00e5ff}
+.progress-container{width:40%;height:14px;background:#111;border-radius:20px;overflow:hidden}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#00e5ff,#d500f9);transition:width .6s ease}
+.level{color:#00e5ff;font-weight:bold}
+.hero{height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px;position:relative}
+.hero h1{font-size:5rem;font-family:'Orbitron';background:linear-gradient(90deg,#00e5ff,#d500f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px;animation:glitch 3s infinite}
+@keyframes glitch{0%,100%{transform:translate(0)}20%{transform:translate(-2px,2px)}40%{transform:translate(2px,-2px)}60%{transform:translate(-2px,-2px)}80%{transform:translate(2px,2px)}}
+.hero p{font-size:1.3rem;max-width:800px;opacity:.9}
+.section{padding:120px 8%;position:relative}
+.section-title{font-size:3rem;font-family:'Orbitron';margin-bottom:60px;text-align:center;background:linear-gradient(90deg,#00e5ff,#d500f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:30px}
+.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:25px;padding:25px;backdrop-filter:blur(20px);transition:.5s;transform-style:preserve-3d;box-shadow:0 0 20px rgba(0,229,255,.2);position:relative;overflow:hidden}
+.card:hover{transform:rotateY(10deg) translateY(-10px);box-shadow:0 0 50px #00e5ff}
+.card img{width:100%;height:170px;object-fit:cover;border-radius:20px;margin-bottom:15px}
+.card h3{color:#00e5ff;margin-bottom:10px}
+.theory-box{background:rgba(255,255,255,.05);padding:40px;border-radius:30px;margin-bottom:40px;position:relative;overflow:hidden;box-shadow:0 0 30px rgba(213,0,249,.3)}
+.network-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:40px 40px;opacity:.3}
+.expand-btn{margin-top:20px;padding:12px 25px;border:none;border-radius:30px;background:#00e5ff;color:black;font-weight:bold;cursor:pointer;position:relative;z-index:50;pointer-events:auto;transition:.3s}
+.expand-btn:hover{transform:scale(1.05);box-shadow:0 0 25px #00e5ff}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:30px}
+.gallery-card{background:rgba(255,255,255,.05);padding:30px;border-radius:25px;text-align:center;transition:.4s}
+.gallery-card:hover{transform:translateY(-10px);box-shadow:0 0 40px #00e5ff}
+.pdf-btn{margin-top:20px;padding:12px 25px;border:none;border-radius:40px;background:linear-gradient(90deg,#00e5ff,#d500f9);color:white;cursor:pointer}
+#pdfModal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;z-index:9999}
+#pdfFrame{width:90%;height:90%;border:none;border-radius:20px}
+.video-box video,.audio-card audio{width:100%;margin-top:20px}
+.challenge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:25px}
+.challenge{background:rgba(255,255,255,.05);padding:30px;border-radius:25px;transition:.4s;position:relative}
+.challenge.completed{box-shadow:0 0 40px lime;border:2px solid lime}
+.challenge button{margin-top:20px;padding:10px 20px;border:none;border-radius:20px;background:#00e5ff;font-weight:bold;cursor:pointer}
+.badge-final{display:none;margin-top:50px;text-align:center;font-size:2rem;color:gold;animation:pulse 2s infinite}
+#gameArea{position:relative;width:100%;height:500px;border-radius:30px;overflow:hidden;background:#111;margin-top:30px}
+.number{position:absolute;width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#00e5ff;color:black;font-size:1.5rem;font-weight:bold;cursor:pointer;z-index:20;box-shadow:0 0 25px #00e5ff;transition:.2s}
+.number:hover{transform:scale(1.12)}
+.notification{position:absolute;right:-380px;background:#ff006a;padding:15px 20px;border-radius:18px;box-shadow:0 0 25px rgba(255,0,106,.7);font-weight:bold;white-space:nowrap;backdrop-filter:blur(10px);z-index:15;cursor:pointer;animation:slideNotif 3.2s linear forwards}
+.fake-number{position:absolute;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#d500f9;color:white;font-size:1.2rem;font-weight:bold;cursor:pointer;box-shadow:0 0 25px rgba(213,0,249,.9);z-index:14;animation:floatDistraction 2.4s ease-in-out infinite alternate}
+.pop-ad{position:absolute;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);padding:18px;border-radius:20px;color:white;font-weight:bold;box-shadow:0 0 30px rgba(0,229,255,.4);z-index:16;animation:shakeAd .7s infinite alternate;cursor:pointer;backdrop-filter:blur(10px)}
+.warning-flash{position:absolute;inset:0;background:rgba(255,0,106,.12);z-index:8;pointer-events:none;animation:flashWarn .35s linear forwards}
+@keyframes slideNotif{0%{right:-380px;transform:translateY(0) rotate(0deg) scale(.95);opacity:0}8%{opacity:1}25%{transform:translateY(-35px) rotate(-6deg) scale(1.05)}50%{transform:translateY(30px) rotate(5deg) scale(1)}75%{transform:translateY(-25px) rotate(-4deg) scale(1.08)}100%{right:110%;transform:translateY(15px) rotate(2deg) scale(.9);opacity:0}}
+@keyframes floatDistraction{from{transform:translate(0,0) rotate(-6deg)}to{transform:translate(35px,-25px) rotate(8deg)}}
+@keyframes shakeAd{from{transform:translateX(-4px) rotate(-1deg)}to{transform:translateX(4px) rotate(1deg)}}
+@keyframes flashWarn{from{opacity:1}to{opacity:0}}
+.quiz-box{max-width:700px;margin:auto;background:rgba(255,255,255,.05);padding:40px;border-radius:30px;text-align:center}
+.quiz-option{display:block;margin:15px 0;padding:15px;background:#111;border-radius:20px;cursor:pointer;transition:.3s}
+.quiz-option:hover{background:#00e5ff;color:black}
+.forum{max-width:900px;margin:auto}
+.forum textarea{width:100%;height:120px;padding:20px;border-radius:20px;background:#111;color:white;border:none}
+.forum button{margin-top:20px;padding:12px 25px;border:none;border-radius:20px;background:#00e5ff}
+.post{background:rgba(255,255,255,.05);padding:20px;border-radius:20px;margin-top:20px}
+.chatbot{position:fixed;bottom:20px;right:20px;z-index:9999}
+.chat-toggle{width:70px;height:70px;border-radius:50%;border:none;background:linear-gradient(90deg,#00e5ff,#d500f9);color:white;font-size:1.5rem;cursor:pointer;box-shadow:0 0 30px #00e5ff}
+.chat-window{display:none;width:320px;height:450px;background:#0d1327;border-radius:25px;padding:20px;margin-bottom:15px;overflow-y:auto}
+.chat-input{width:100%;padding:12px;border-radius:15px;border:none;margin-top:10px}
+.time-capsule{max-width:900px;margin:auto;background:rgba(255,255,255,.05);padding:40px;border-radius:30px}
+.time-capsule textarea,.time-capsule input{width:100%;padding:15px;margin-top:15px;border:none;border-radius:15px;background:#111;color:white}
+footer{padding:80px 8%;text-align:center;background:#02040c}
+.school-btn{display:inline-block;margin-top:30px;padding:18px 40px;background:linear-gradient(90deg,#00e5ff,#d500f9);color:white;text-decoration:none;border-radius:50px;font-weight:bold;box-shadow:0 0 40px #00e5ff}
+@media(max-width:768px){.hero h1{font-size:2.7rem}.modal-content h1{font-size:2rem}.section-title{font-size:2rem}}
+</style>
+</head>
+<body>
+
+<div class="loader" id="loader">RESPONSABILIDAD DIGITAL</div>
+<canvas id="bg"></canvas>
+
+<div id="welcomeModal">
+<div class="modal-content">
+<span class="closeModal" onclick="closeWelcome()">✕</span>
+<h1>ESTÁS A PUNTO DE MEJORAR TU EXPERIENCIA DIGITAL</h1>
+<p>Descubre cómo las redes sociales afectan tu tiempo, emociones y bienestar digital.</p>
+<button class="hero-btn" onclick="startExperience()">EXPLORAR</button>
+</div>
+</div>
+
+<header>
+<div class="logo">RESPONSABILIDAD DIGITAL</div>
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+<div class="level" id="levelText">Novato Digital</div>
+</header>
+
+<section class="hero">
+<h1>RESPONSABILIDAD DIGITAL</h1>
+<p>Una experiencia inmersiva sobre bienestar digital, redes sociales y equilibrio tecnológico.</p>
+<button class="hero-btn" onclick="document.querySelector('#concepts').scrollIntoView({behavior:'smooth'})">COMENZAR</button>
+</section>
+
+<section class="section" id="concepts">
+<h2 class="section-title">UNIVERSO DIGITAL INTERACTIVO</h2>
+<div class="card-grid">
+<div class="card"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000"><h3>Adicción a Redes Sociales</h3><p>Uso excesivo que afecta emociones y tiempo.</p></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1000"><h3>Cultura Digital</h3><p>Cómo convivimos y nos expresamos online.</p></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1000"><h3>Identidad Digital</h3><p>La imagen que construyes en internet.</p></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000"><h3>Ciudadanía Digital</h3><p>Uso responsable y ético de plataformas.</p></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1000"><h3>Huella Digital</h3><p>Todo lo que dejas registrado en línea.</p></div>
+<div class="card"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000"><h3>Bienestar Digital</h3><p>Equilibrio entre tecnología y salud mental.</p></div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">LABORATORIO DE TEORÍAS DIGITALES</h2>
+
+<div class="theory-box">
+<div class="network-lines"></div>
+<h3>Teoría de la Sociedad Red — Manuel Castells</h3>
+<p>La sociedad moderna se organiza a través de redes digitales conectadas globalmente.</p>
+<button class="expand-btn" onclick="toggleTheory('theory1')">DESCUBRIR MÁS</button>
+<div id="theory1" style="display:none;margin-top:25px;padding:25px;border-radius:20px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);animation:fadeIn 0.6s;">
+<h4 style="color:#00e5ff;margin-bottom:15px;font-size:1.5rem;">Teoría de la sociedad de red</h4>
+<p style="line-height:2;opacity:.92;background:rgba(255,255,255,.03);padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.06);">La teoría de la sociedad de red fue desarrollada principalmente por Manuel Castells. Explica cómo las tecnologías digitales e internet cambiaron la forma en que las personas, empresas y gobiernos se relacionan.</p>
+<br>
+<h4 style="color:#00e5ff;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Ideas principales</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>La sociedad actual funciona mediante redes digitales conectadas.</li>
+<li>Internet permite comunicación inmediata entre personas de todo el mundo.</li>
+<li>La información se volvió uno de los recursos más importantes.</li>
+<li>Las redes sociales, plataformas digitales y aplicaciones influyen en la vida diaria.</li>
+<li>El trabajo, la educación y la economía ahora dependen mucho de la conectividad.</li>
+</ul>
+<br>
+<h4 style="color:#00e5ff;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Características</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>Comunicación global y rápida.</li>
+<li>Intercambio constante de información.</li>
+<li>Mayor uso de plataformas digitales.</li>
+<li>Trabajo y estudio a distancia.</li>
+<li>Influencia de redes sociales en opiniones y comportamientos.</li>
+</ul>
+<br>
+<h4 style="color:#00e5ff;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Ejemplo</h4>
+<p style="line-height:2;opacity:.92;background:rgba(255,255,255,.03);padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.06);">Cuando una noticia se vuelve viral en redes sociales y millones de personas la comparten en pocos minutos, se está viendo la sociedad de red en acción.</p>
+<br>
+<h4 style="color:#00e5ff;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Ventajas</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>Acceso rápido a información.</li>
+<li>Mayor comunicación entre personas.</li>
+<li>Facilita el aprendizaje y el trabajo colaborativo.</li>
+</ul>
+<br>
+<h4 style="color:#ff4d6d;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Desventajas</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>Dependencia excesiva de internet.</li>
+<li>Riesgo de desinformación.</li>
+<li>Pérdida de privacidad digital.</li>
+</ul>
+</div>
+</div>
+
+<div class="theory-box">
+<div class="network-lines"></div>
+<h3>Economía de la Atención — Herbert Simon</h3>
+<p>La atención humana se convierte en un recurso valioso dentro del mundo digital.</p>
+<button class="expand-btn" onclick="toggleTheory('theory2')">DESCUBRIR MÁS</button>
+<div id="theory2" style="display:none;margin-top:25px;padding:25px;border-radius:20px;background:rgba(213,0,249,.08);border:1px solid rgba(213,0,249,.3);animation:fadeIn 0.6s;">
+<h4 style="color:#ff4df8;margin-bottom:15px;font-size:1.5rem;">Teoría de la economía de la atención</h4>
+<p style="line-height:2;opacity:.92;background:rgba(255,255,255,.03);padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.06);">La teoría de la economía de la atención sostiene que, en un mundo lleno de información, lo más valioso ya no es el contenido, sino la atención de las personas.</p>
+<br>
+<h4 style="color:#ff4df8;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Ideas principales</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>Las plataformas digitales compiten por mantener a las personas conectadas el mayor tiempo posible.</li>
+<li>Redes sociales, videojuegos y aplicaciones usan algoritmos para captar atención.</li>
+<li>Los “likes”, videos cortos y notificaciones están diseñados para generar interés constante.</li>
+<li>La atención humana se convirtió en un recurso económico.</li>
+</ul>
+<br>
+<h4 style="color:#ff4df8;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Características</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>Uso de algoritmos personalizados.</li>
+<li>Publicidad dirigida según intereses.</li>
+<li>Contenido rápido y llamativo.</li>
+<li>Competencia entre plataformas por más vistas y tiempo de uso.</li>
+</ul>
+<br>
+<h4 style="color:#ff4df8;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Ejemplo</h4>
+<p style="line-height:2;opacity:.92;background:rgba(255,255,255,.03);padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.06);">Aplicaciones como TikTok o Instagram muestran videos continuamente para mantener a los usuarios viendo contenido sin parar.</p>
+<br>
+<h4 style="color:#00ffb3;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Ventajas</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>Contenido personalizado.</li>
+<li>Fácil acceso al entretenimiento y la información.</li>
+<li>Oportunidades para creadores digitales.</li>
+</ul>
+<br>
+<h4 style="color:#ff4d6d;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Desventajas</h4>
+<ul style="line-height:2;padding-left:25px;background:rgba(255,255,255,.03);padding:18px 18px 18px 40px;border-radius:18px;border:1px solid rgba(255,255,255,.08);margin-top:10px;">
+<li>Distracción constante.</li>
+<li>Menor concentración.</li>
+<li>Posible adicción a redes sociales.</li>
+<li>Manipulación mediante algoritmos y publicidad.</li>
+</ul>
+<br>
+<h4 style="color:#00e5ff;margin:25px 0 12px 0;font-size:1.15rem;letter-spacing:1px;text-transform:uppercase;">Relación entre ambas teorías</h4>
+<p style="line-height:2;opacity:.92;background:rgba(255,255,255,.03);padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.06);">La sociedad de red crea un mundo hiperconectado mediante internet y plataformas digitales. La economía de la atención explica cómo, dentro de ese mundo conectado, empresas y aplicaciones buscan captar el tiempo y atención de las personas para obtener beneficios económicos.</p>
+<br>
+<p style="line-height:2;opacity:.92;background:rgba(255,255,255,.03);padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.06);">Sociedad de red: explica cómo vivimos conectados.</p>
+<p style="line-height:2;opacity:.92;background:rgba(255,255,255,.03);padding:18px;border-radius:18px;border:1px solid rgba(255,255,255,.06);">Economía de la atención: explica por qué las plataformas quieren mantenernos conectados el mayor tiempo posible.</p>
+</div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">CENTRO HOLOGRÁFICO DE APRENDIZAJE</h2>
+<div class="gallery">
+<div class="gallery-card"><h3>Impacto de las Redes Sociales</h3><button class="pdf-btn" onclick="openPDF('infografia1.pdf')">VER INFOGRAFÍA</button></div>
+<div class="gallery-card"><h3>Bienestar Digital en Adolescentes</h3><button class="pdf-btn" onclick="openPDF('infografia2.pdf')">VER INFOGRAFÍA</button></div>
+<div class="gallery-card"><h3>Huella e Identidad Digital</h3><button class="pdf-btn" onclick="openPDF('infografia3.pdf')">VER INFOGRAFÍA</button></div>
+<div class="gallery-card"><h3>Economía de la Atención</h3><button class="pdf-btn" onclick="openPDF('infografia4.pdf')">VER INFOGRAFÍA</button></div>
+<div class="gallery-card"><h3>Uso Responsable de la Tecnología</h3><button class="pdf-btn" onclick="openPDF('infografia5.pdf')">VER INFOGRAFÍA</button></div>
+</div>
+</section>
+
+<div id="pdfModal" onclick="closePDF()"><iframe id="pdfFrame"></iframe></div>
+
+<section class="section">
+<h2 class="section-title">CINEMA DIGITAL INMERSIVO</h2>
+<div class="video-box"><video controls><source src="video1.mp4" type="video/mp4"></video></div>
+</section>
+
+<section class="section">
+<h2 class="section-title">ONDAS SONORAS DEL BIENESTAR</h2>
+<div class="card-grid">
+<div class="audio-card card"><h3>Consejos prácticos para mejorar tu bienestar digital</h3><audio controls src="pod1.mp3"></audio></div>
+<div class="audio-card card"><h3>Bienestar digital y su importancia</h3><audio controls src="pod2.mp3"></audio></div>
+<div class="audio-card card"><h3>Señales de adicción a la tecnología</h3><audio controls src="pod3.mp3"></audio></div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">RETOS DEL EQUILIBRIO DIGITAL</h2>
+<div class="challenge-grid" id="challengeGrid"></div>
+<div class="badge-final" id="finalBadge">🏆 MEDALLA MAESTRO DEL EQUILIBRIO DESBLOQUEADA 🏆</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">SIMULADOR DE NOTIFICACIONES</h2>
+<p>Haz clic en los números en orden mientras evitas distracciones.</p>
+<div id="gameArea"></div>
+<p id="gameResult"></p>
+<div style="text-align:center;">
+<button id="restartGameBtn" onclick="restartNotificationGame()" class="hero-btn" style="display:none;">JUGAR OTRA VEZ</button>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">ESCÁNER DE HÁBITOS DIGITALES</h2>
+<div class="quiz-box">
+<h3 id="questionText"></h3>
+<div id="options"></div>
+<p id="quizResult"></p>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">COMPROMISOS POR UN MUNDO DIGITAL MÁS SALUDABLE</h2>
+<div class="forum">
+<textarea id="forumText" placeholder="Comparte tu compromiso digital..."></textarea>
+<button onclick="addPost()">PUBLICAR</button>
+<div id="posts"></div>
+</div>
+</section>
+
+<section class="section">
+<h2 class="section-title">LA CÁPSULA DEL TIEMPO DIGITAL</h2>
+<div class="time-capsule">
+<p>¿Cómo te sientes hoy después de usar el celular 5 horas y cómo te quieres sentir en un mes?</p>
+<input type="text" id="username" placeholder="Tu nombre">
+<textarea id="reflection"></textarea>
+<button class="hero-btn" onclick="downloadTicket()">DESCARGAR TICKET DIGITAL</button>
+</div>
+</section>
+
+<section class="secret-zone">
+<h2 class="section-title">ZONA DE CÓDIGO SECRETO</h2>
+<p style="text-align:center;max-width:800px;margin:auto;line-height:2;opacity:.9;">Ingresa tu código de compromiso digital para desbloquear una recompensa especial dentro de la plataforma.</p>
+<div style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-top:35px;">
+<input id="secretCode" type="text" placeholder="INGRESA TU CÓDIGO" style="padding:18px 25px;border-radius:20px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:white;font-size:1rem;min-width:320px;outline:none;box-shadow:0 0 20px rgba(0,229,255,.15);">
+<button onclick="unlockSecretReward()" class="hero-btn">DESBLOQUEAR</button>
+</div>
+<div id="secretReward" style="display:none;margin-top:40px;text-align:center;animation:fadeIn .8s;">
+<div id="runnerGame" style="margin-top:50px;display:none;">
+<h2 class="section-title">MISIÓN BALANCE DIGITAL</h2>
+<p style="max-width:850px;margin:auto;line-height:2;opacity:.9;">Recoge hábitos positivos como descanso, privacidad y concentración. Esquiva las distracciones digitales para construir una rutina más saludable.</p>
+<div style="position:relative;width:100%;max-width:950px;height:420px;margin:40px auto;border-radius:30px;overflow:hidden;background:linear-gradient(180deg,#050816,#0f172a);border:1px solid rgba(255,255,255,.1);box-shadow:0 0 40px rgba(0,229,255,.2);">
+<canvas id="runnerCanvas" width="950" height="420"></canvas>
+</div>
+<button onclick="startRunnerGame()" class="hero-btn">INICIAR MISIÓN</button>
+<div id="runnerResult" style="display:none;margin-top:35px;padding:30px;border-radius:25px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);max-width:850px;margin-left:auto;margin-right:auto;">
+<h3 style="font-family:Orbitron;color:#00e5ff;font-size:1.8rem;margin-bottom:20px;">RECOMPENSA DESBLOQUEADA</h3>
+<p style="line-height:2;font-size:1.1rem;">Has creado tu Kit de Balance Digital: pausas conscientes, privacidad, sueño saludable y concentración. Usar la tecnología con intención también es un superpoder.</p>
+</div>
+</div>
+<div style="max-width:750px;margin:auto;padding:35px;border-radius:30px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);box-shadow:0 0 40px rgba(0,229,255,.25);">
+<h3 style="font-family:Orbitron;color:#00e5ff;font-size:2rem;margin-bottom:20px;">ACCESO DESBLOQUEADO</h3>
+<p style="line-height:2;font-size:1.1rem;opacity:.92;">Has demostrado compromiso con tu bienestar digital. Ahora desbloqueaste una misión especial para convertir la tecnología en una herramienta a tu favor.</p>
+<div style="margin-top:30px;padding:25px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">
+<h4 style="color:#00ffb3;font-size:1.3rem;margin-bottom:15px;">RECOMPENSA EXCLUSIVA</h4>
+<p style="line-height:2;">Tu atención es valiosa. Úsala para aprender, crear, descansar y conectar con lo que realmente importa.</p>
+</div>
+</div>
+</div>
+</section>
+
+<footer>
+<h2>Tu bienestar digital importa.</h2>
+<p>Desconectarte también es avanzar.</p>
+<a class="school-btn" href="https://www.pmoodlezoebisch.edu.mx/" target="_blank">ZOEBISCH</a>
+</footer>
+
+<div class="chatbot">
+<div class="chat-window" id="chatWindow">
+<div id="chatMessages"></div>
+<div id="quickQuestions" style="margin-top:15px;display:flex;flex-wrap:wrap;gap:10px;">
+<button onclick="quickAsk('¿Cómo reducir el tiempo en redes?')" class="quiz-option">Tiempo en redes</button>
+<button onclick="quickAsk('¿Cómo dormir mejor sin celular?')" class="quiz-option">Dormir mejor</button>
+<button onclick="quickAsk('¿Qué es bienestar digital?')" class="quiz-option">Bienestar digital</button>
+<button onclick="quickAsk('¿Cómo evitar distracciones?')" class="quiz-option">Evitar distracciones</button>
+<button onclick="quickAsk('¿Qué es la huella digital?')" class="quiz-option">Huella digital</button>
+<button onclick="quickAsk('¿Cómo mejorar concentración?')" class="quiz-option">Concentración</button>
+<button onclick="quickAsk('¿Cómo usar redes responsablemente?')" class="quiz-option">Uso responsable</button>
+<button onclick="quickAsk('¿Qué hacer si soy dependiente del celular?')" class="quiz-option">Dependencia</button>
+<button onclick="quickAsk('¿Cómo afectan las notificaciones?')" class="quiz-option">Notificaciones</button>
+<button onclick="quickAsk('¿Qué es ciudadanía digital?')" class="quiz-option">Ciudadanía digital</button>
+<button onclick="quickAsk('¿Cómo equilibrar estudio y redes?')" class="quiz-option">Equilibrio</button>
+<button onclick="quickAsk('¿Cómo controlar ansiedad digital?')" class="quiz-option">Ansiedad digital</button>
+<button onclick="quickAsk('¿Qué son los algoritmos?')" class="quiz-option">Algoritmos</button>
+<button onclick="quickAsk('¿Cómo cuidar salud mental online?')" class="quiz-option">Salud mental</button>
+<button onclick="quickAsk('¿Cómo hacer pausas digitales?')" class="quiz-option">Pausas digitales</button>
+</div>
+<input type="text" class="chat-input" id="chatInput" placeholder="Pregunta algo...">
+</div>
+<button class="chat-toggle" onclick="toggleChat()">🤖</button>
+</div>
+
+<script>
+window.onload=()=>{
+setTimeout(()=>{
+document.getElementById('loader').style.display='none';
+},2000)
+}
+function closeWelcome(){document.getElementById('welcomeModal').style.display='none'}
+function startExperience(){closeWelcome();document.querySelector('#concepts').scrollIntoView({behavior:'smooth'})}
+function toggleTheory(id){
+const box=document.getElementById(id);
+if(box.style.display==='block'){box.style.display='none'}else{box.style.display='block';box.scrollIntoView({behavior:'smooth',block:'center'}); markExplore('theories')}
+}
+function openPDF(file){document.getElementById('pdfModal').style.display='flex';document.getElementById('pdfFrame').src=file;markExplore('infografias')}
+function closePDF(){document.getElementById('pdfModal').style.display='none'}
+
+const explorationGoals=[
+'theories',
+'infografias',
+'video',
+'podcasts',
+'challenges',
+'notificationGame',
+'quiz',
+'forum',
+'ticket',
+'chatbot'
+];
+let exploredItems=new Set();
+let expertShown=false;
+
+function markExplore(item){
+if(!explorationGoals.includes(item))return;
+exploredItems.add(item);
+updateProgress();
+}
+
+function updateProgress(){
+const percent=Math.round((exploredItems.size/explorationGoals.length)*100);
+document.getElementById('progressBar').style.width=percent+'%';
+const level=document.getElementById('levelText');
+if(percent<20){level.innerText='Novato Digital'}
+else if(percent<45){level.innerText='Explorador Digital'}
+else if(percent<70){level.innerText='Guardián del Equilibrio'}
+else if(percent<100){level.innerText='Casi Experto Digital'}
+else{
+level.innerText='Experto Digital Supremo';
+if(!expertShown){
+expertShown=true;
+setTimeout(()=>{
+const expert=document.createElement('div');
+expert.innerHTML=`
+<div style="position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;z-index:999999;">
+<div style="width:90%;max-width:700px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:45px;text-align:center;box-shadow:0 0 60px #00e5ff;animation:fadeIn .8s;">
+<h2 style="font-family:Orbitron;color:#00e5ff;font-size:2rem;margin-bottom:20px;">🚀 EXPERTO DIGITAL SUPREMO 🚀</h2>
+<p style="line-height:2;font-size:1.1rem;opacity:.95;">Exploraste las partes principales del sitio y completaste actividades clave de responsabilidad digital.</p>
+<p style="margin-top:20px;color:#00ffb3;font-weight:bold;">Tu superpoder: usar la tecnología con intención, equilibrio y conciencia.</p>
+<button onclick="this.parentElement.parentElement.remove()" class="hero-btn">GENIAL</button>
+</div>
+</div>`;
+document.body.appendChild(expert);
+confetti({particleCount:250,spread:120,origin:{y:0.6}});
+},500);
+}
+}
+}
+
+document.addEventListener('click',e=>{
+if(e.target.closest('.video-box'))markExplore('video');
+if(e.target.closest('.audio-card'))markExplore('podcasts');
+if(e.target.closest('.chat-toggle')||e.target.closest('#quickQuestions button'))markExplore('chatbot');
+});
+
+const challenges=['Pasar 1 hora sin redes sociales','Dormir sin usar el celular','Comer sin revisar el teléfono','Desactivar notificaciones por 2 horas','Tener una conversación real sin celular'];
+const grid=document.getElementById('challengeGrid');
+let completed=0;
+let generatedCommitmentCode='';
+
+function generateCommitmentCode(){
+const words=['BALANCE','FOCUS','PAUSA','MENTE','CALMA','CREA','PRIVACY','RESET','LUZ','EQUILIBRIO'];
+const word=words[Math.floor(Math.random()*words.length)];
+const number=Math.floor(1000+Math.random()*9000);
+return word+'-'+number+'-DIGITAL';
+}
+
+challenges.forEach(c=>{
+const div=document.createElement('div');
+div.className='challenge';
+div.innerHTML=`<h3>${c}</h3><button>COMPLETAR</button>`;
+div.querySelector('button').onclick=()=>{
+if(!div.classList.contains('completed')){
+div.classList.add('completed');
+completed++;
+markExplore('challenges');
+confetti();
+if(completed===5){
+generatedCommitmentCode=generateCommitmentCode();
+document.getElementById('finalBadge').style.display='block';
+setTimeout(()=>{
+const reward=document.createElement('div');
+reward.innerHTML=`
+<div style="position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;z-index:99999;">
+<div style="background:rgba(255,255,255,.05);padding:45px;border-radius:30px;text-align:center;max-width:700px;width:90%;border:1px solid rgba(255,255,255,.15);box-shadow:0 0 50px #00e5ff;animation:fadeIn 0.8s;">
+<h2 style="font-family:Orbitron;color:#00e5ff;font-size:2rem;margin-bottom:20px;">RECOMPENSA DESBLOQUEADA</h2>
+<p style="line-height:2;font-size:1.1rem;opacity:.9;">Has completado todos los retos del bienestar digital. Ahora puedes descargar tu certificado oficial de equilibrio digital y desbloquear tu misión especial.</p>
+<div style="margin:30px 0;padding:20px;border-radius:20px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);">
+<h3 style="color:#00ffb3;margin-bottom:10px;">Código de compromiso:</h3>
+<p style="font-size:1.5rem;font-family:Orbitron;letter-spacing:3px;">${generatedCommitmentCode}</p>
+</div>
+<button onclick="downloadRewardCertificate()" class="hero-btn">DESCARGAR CERTIFICADO</button>
+<br><br>
+<button onclick="this.parentElement.parentElement.remove()" style="padding:12px 30px;border:none;border-radius:30px;background:#111;color:white;cursor:pointer;">CERRAR</button>
+</div>
+</div>`;
+document.body.appendChild(reward);
+},800);
+}
+}
+}
+grid.appendChild(div);
+});
+
+const game=document.getElementById('gameArea');
+let current=1;
+let gameMistakes=0;
+let gameFinished=false;
+let movingNumbers=[];
+let gameIntervals=[];
+
+function updateGameResult(text){
+document.getElementById('gameResult').innerText=text;
+}
+
+function flashGame(){
+const flash=document.createElement('div');
+flash.className='warning-flash';
+game.appendChild(flash);
+setTimeout(()=>flash.remove(),350);
+}
+
+function moveTargetNumber(n){
+let x=parseFloat(n.style.left);
+let y=parseFloat(n.style.top);
+let dx=(Math.random()>.5?1:-1)*(0.08+Math.random()*0.10);
+let dy=(Math.random()>.5?1:-1)*(0.08+Math.random()*0.10);
+let frameId;
+
+function smoothMove(){
+if(!document.body.contains(n)||gameFinished){
+cancelAnimationFrame(frameId);
+return;
+}
+
+x+=dx;
+y+=dy;
+
+if(x<2||x>88){dx*=-1}
+if(y<4||y>82){dy*=-1}
+
+n.style.left=x+'%';
+n.style.top=y+'%';
+
+frameId=requestAnimationFrame(smoothMove);
+}
+
+smoothMove();
+movingNumbers.push(()=>cancelAnimationFrame(frameId));
+}
+
+function startNotificationGame(){
+game.innerHTML='';
+document.getElementById('restartGameBtn').style.display='none';
+document.getElementById('gameResult').innerText='';
+current=1;
+gameMistakes=0;
+gameFinished=false;
+movingNumbers.forEach(stop=>stop());
+movingNumbers=[];
+gameIntervals.forEach(clearInterval);
+gameIntervals=[];
+
+for(let i=1;i<=9;i++){
+const n=document.createElement('div');
+n.className='number';
+n.innerText=i;
+n.style.left=Math.random()*82+'%';
+n.style.top=Math.random()*78+'%';
+n.onclick=()=>{
+if(gameFinished)return;
+if(i===current){
+n.remove();
+current++;
+updateGameResult('Bien. Sigue concentrándote.');
+if(current===10){
+gameFinished=true;
+markExplore('notificationGame');
+movingNumbers.forEach(stop=>stop());
+gameIntervals.forEach(clearInterval);
+document.querySelectorAll('.notification,.fake-number,.pop-ad').forEach(el=>el.remove());
+document.getElementById('gameResult').innerText='Excelente concentración. Completaste el reto difícil.';
+document.getElementById('restartGameBtn').style.display='inline-block';
+confetti({particleCount:120,spread:80,origin:{y:0.7}});
+}
+}else{
+gameMistakes++;
+flashGame();
+updateGameResult('Ese no era el número correcto. Concéntrate: toca el '+current+'.');
+}
+}
+game.appendChild(n);
+moveTargetNumber(n);
+}
+
+gameIntervals.push(setInterval(spawnNotification,850));
+gameIntervals.push(setInterval(()=>{spawnNotification();spawnNotification()},2600));
+gameIntervals.push(setInterval(spawnFakeNumber,1800));
+gameIntervals.push(setInterval(spawnPopAd,3300));
+}
+
+function restartNotificationGame(){
+startNotificationGame();
+}
+
+function spawnNotification(){
+if(gameFinished)return;
+const notif=document.createElement('div');
+notif.className='notification';
+notif.style.top=Math.random()*78+'%';
+notif.style.animationDuration=(2.2+Math.random()*1.4)+'s';
+notif.innerText=['¡Te etiquetaron!','Nuevo like','TikTok viral','Mensaje urgente','Nuevo seguidor','¡Mira este video!','Alguien comentó tu foto','Oferta por tiempo limitado','Nueva historia disponible','Tienes 5 mensajes','Tu video está subiendo','Revisa esto ahora'][Math.floor(Math.random()*12)];
+notif.onclick=()=>{
+gameMistakes++;
+flashGame();
+updateGameResult('Te distrajiste con una notificación. Errores: '+gameMistakes+'.');
+notif.remove();
+}
+game.appendChild(notif);
+setTimeout(()=>notif.remove(),4200);
+}
+
+function spawnFakeNumber(){
+if(gameFinished)return;
+const fake=document.createElement('div');
+fake.className='fake-number';
+fake.innerText=[current+1,current+2,'?',Math.floor(Math.random()*9)+1][Math.floor(Math.random()*4)];
+fake.style.left=Math.random()*86+'%';
+fake.style.top=Math.random()*80+'%';
+fake.onclick=()=>{
+gameMistakes++;
+flashGame();
+updateGameResult('Era una distracción. Busca el número '+current+'.');
+fake.remove();
+}
+game.appendChild(fake);
+setTimeout(()=>fake.remove(),2600);
+}
+
+function spawnPopAd(){
+if(gameFinished)return;
+const ad=document.createElement('div');
+ad.className='pop-ad';
+ad.style.left=Math.random()*70+'%';
+ad.style.top=Math.random()*70+'%';
+ad.innerHTML=['🔥 VIDEO VIRAL<br><small>Haz clic aquí</small>','🎁 PREMIO GRATIS<br><small>Reclamar ahora</small>','📱 NUEVA ALERTA<br><small>No la ignores</small>','⚡ RETO RÁPIDO<br><small>Solo 5 segundos</small>'][Math.floor(Math.random()*4)];
+ad.onclick=()=>{
+gameMistakes++;
+flashGame();
+updateGameResult('La publicidad te distrajo. Errores: '+gameMistakes+'.');
+ad.remove();
+}
+game.appendChild(ad);
+setTimeout(()=>ad.remove(),2400);
+}
+
+startNotificationGame();
+
+const questions=['¿Cuántas horas usas el celular al día?','¿Revisas notificaciones constantemente?','¿Usas el celular antes de dormir?','¿Te distraes en clases?','¿Te cuesta dejar redes sociales?','¿Te sientes ansioso sin internet?','¿Hablas menos con personas por usar el celular?','¿Te afecta emocionalmente lo que ves en redes?'];
+let q=0;
+let score=0;
+function loadQuestion(){
+document.getElementById('questionText').innerText=questions[q];
+const options=document.getElementById('options');
+options.innerHTML='';
+['Nunca','A veces','Frecuentemente'].forEach((o,index)=>{
+const btn=document.createElement('div');
+btn.className='quiz-option';
+btn.innerText=o;
+btn.onclick=()=>{
+score+=index;
+q++;
+if(q<questions.length){loadQuestion()}else{showResult()}
+}
+options.appendChild(btn);
+})
+}
+function showResult(){
+let text='';
+if(score<8){text='Uso saludable. Mantienes equilibrio digital.'}
+else if(score<14){text='Riesgo moderado. Intenta reducir distracciones.'}
+else{text='Dependencia alta. Necesitas mejorar hábitos digitales.'}
+markExplore('quiz');
+document.getElementById('questionText').innerText='RESULTADO FINAL';
+document.getElementById('options').innerHTML='';
+document.getElementById('quizResult').innerText=text;
+}
+loadQuestion();
+
+function addPost(){
+const text=document.getElementById('forumText').value;
+if(text.trim()!==''){
+markExplore('forum');
+const post=document.createElement('div');
+post.className='post';
+post.innerHTML=`<p>${text}</p><button onclick="this.innerText='💙 '+(parseInt(this.dataset.likes||0)+1); this.dataset.likes=parseInt(this.dataset.likes||0)+1">👍 0</button>`;
+document.getElementById('posts').prepend(post);
+document.getElementById('forumText').value='';
+}
+}
+
+function toggleChat(){
+markExplore('chatbot');
+const chat=document.getElementById('chatWindow');
+chat.style.display=chat.style.display==='block'?'none':'block';
+}
+
+const responses={
+'¿Cómo reducir el tiempo en redes?':'Intenta usar temporizadores y establecer horarios específicos para revisar redes sociales.',
+'¿Cómo dormir mejor sin celular?':'Evita usar pantallas 30 minutos antes de dormir y activa el modo nocturno.',
+'¿Qué es bienestar digital?':'Es el equilibrio saludable entre la tecnología y tu bienestar emocional, físico y mental.',
+'¿Cómo evitar distracciones?':'Desactiva notificaciones innecesarias y estudia en espacios sin interrupciones.',
+'¿Qué es la huella digital?':'Es toda la información que dejas registrada al usar internet y redes sociales.',
+'¿Cómo mejorar concentración?':'Haz pausas cortas, organiza tus tareas y evita multitareas digitales.',
+'¿Cómo usar redes responsablemente?':'Comparte contenido positivo y protege tu privacidad.',
+'¿Qué hacer si soy dependiente del celular?':'Empieza reduciendo tiempo poco a poco y realiza actividades offline.',
+'¿Cómo afectan las notificaciones?':'Interrumpen la concentración y pueden aumentar ansiedad y estrés.',
+'¿Qué es ciudadanía digital?':'Es comportarse de manera ética y responsable en internet.',
+'¿Cómo equilibrar estudio y redes?':'Primero termina tareas importantes y luego usa redes como descanso.',
+'¿Cómo controlar ansiedad digital?':'Practica pausas digitales y limita la exposición constante a contenido.',
+'¿Qué son los algoritmos?':'Son sistemas que muestran contenido según tus intereses y comportamiento.',
+'¿Cómo cuidar salud mental online?':'Sigue cuentas positivas y evita compararte constantemente.',
+'¿Cómo hacer pausas digitales?':'Aléjate unos minutos de la pantalla cada hora y realiza otra actividad.'
+};
+
+function quickAsk(question){
+markExplore('chatbot');
+const messages=document.getElementById('chatMessages');
+messages.innerHTML+=`<p><strong>Tú:</strong> ${question}</p>`;
+messages.innerHTML+=`<p><strong>IA:</strong> ${responses[question]}</p>`;
+messages.scrollTop=messages.scrollHeight;
+}
+
+document.getElementById('chatInput').addEventListener('keypress',e=>{
+if(e.key==='Enter'){
+markExplore('chatbot');
+const input=e.target.value;
+const messages=document.getElementById('chatMessages');
+messages.innerHTML+=`<p><strong>Tú:</strong> ${input}</p>`;
+setTimeout(()=>{
+let answer='La tecnología debe ayudarte a crecer, no controlar tu tiempo. Mantén un equilibrio digital saludable.';
+Object.keys(responses).forEach(key=>{
+if(input.toLowerCase().includes(key.toLowerCase().replace('¿','').replace('?','').split(' ')[1])){answer=responses[key]}
+});
+messages.innerHTML+=`<p><strong>IA:</strong> ${answer}</p>`;
+messages.scrollTop=messages.scrollHeight;
+},700);
+e.target.value='';
+}
+})
+
+function unlockSecretReward(){
+const code=document.getElementById('secretCode').value.trim();
+if(code===generatedCommitmentCode&&generatedCommitmentCode!==''){
+document.getElementById('secretReward').style.display='block';
+document.getElementById('runnerGame').style.display='block';
+confetti({particleCount:180,spread:100,origin:{y:0.6}});
+}else{alert('Código incorrecto. Completa los retos para obtener tu código personal.')}
+}
+
+let runnerStarted=false;
+function startRunnerGame(){
+const canvas=document.getElementById('runnerCanvas');
+const ctx=canvas.getContext('2d');
+runnerStarted=true;
+let player={x:120,y:300,w:50,h:50,vy:0,jumping:false,trail:0};
+let gravity=0.8;
+let obstacles=[];
+let shields=[];
+let score=0;
+let speed=6;
+let finished=false;
+let frame=0;
+
+function jump(){
+if(!player.jumping){
+player.vy=-15;
+player.jumping=true;
+}
+}
+window.onkeydown=(e)=>{if(e.code==='Space')jump()};
+canvas.onclick=()=>jump();
+
+function spawnObstacle(){
+const types=['Scroll infinito','Notificación falsa','Comparación social','Desvelo digital'];
+obstacles.push({x:950,y:325,w:90,h:35,text:types[Math.floor(Math.random()*types.length)]});
+}
+function spawnShield(){
+const habits=['Pausa','Privacidad','Sueño','Enfoque'];
+shields.push({x:950,y:200,r:22,text:habits[Math.floor(Math.random()*habits.length)]});
+}
+
+function loop(){
+if(finished)return;
+frame++;
+ctx.clearRect(0,0,950,420);
+const bg=ctx.createLinearGradient(0,0,0,420);
+bg.addColorStop(0,'#050816');
+bg.addColorStop(1,'#111827');
+ctx.fillStyle=bg;
+ctx.fillRect(0,0,950,420);
+ctx.fillStyle='rgba(0,229,255,.15)';
+for(let i=0;i<40;i++){ctx.fillRect((i*50-(frame*2)%50),Math.sin(i+frame*.02)*120+200,2,2)}
+ctx.fillStyle='#1f2937';
+ctx.fillRect(0,360,950,60);
+
+if(frame%120===0)spawnObstacle();
+if(frame%230===0)spawnShield();
+
+player.vy+=gravity;
+player.y+=player.vy;
+if(player.y>=300){player.y=300;player.vy=0;player.jumping=false}
+
+ctx.shadowBlur=25;
+ctx.shadowColor='#00ffb3';
+ctx.fillStyle='#00ffb3';
+ctx.fillRect(player.x,player.y,player.w,player.h);
+
+for(let i=0;i<player.trail;i++){
+ctx.fillStyle='rgba(255,0,106,.35)';
+ctx.fillRect(player.x-15-(i*12),player.y+10,22,22);
+}
+
+obstacles.forEach((o,index)=>{
+o.x-=speed;
+ctx.shadowColor='#ff006a';
+ctx.fillStyle='#ff006a';
+ctx.fillRect(o.x,o.y,o.w,o.h);
+ctx.fillStyle='white';
+ctx.font='11px Poppins';
+ctx.fillText(o.text,o.x,o.y-10);
+if(player.x+8<o.x+o.w&&player.x+player.w-8>o.x&&player.y+12<o.y+o.h&&player.y+player.h-12>o.y){
+player.trail++;
+speed=4;
+obstacles.splice(index,1);
+}
+if(o.x<-130)obstacles.splice(index,1);
+});
+
+shields.forEach((s,index)=>{
+s.x-=speed;
+ctx.beginPath();
+ctx.fillStyle='#00e5ff';
+ctx.shadowColor='#00e5ff';
+ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+ctx.fill();
+ctx.fillStyle='white';
+ctx.font='11px Poppins';
+ctx.fillText(s.text,s.x-22,s.y-30);
+if(player.x<s.x+s.r&&player.x+player.w>s.x-s.r&&player.y<s.y+s.r&&player.y+player.h>s.y-s.r){
+score++;
+speed=6;
+shields.splice(index,1);
+}
+if(s.x<-50)shields.splice(index,1);
+});
+
+ctx.shadowBlur=0;
+ctx.fillStyle='white';
+ctx.font='20px Orbitron';
+ctx.fillText('HÁBITOS: '+score,30,40);
+ctx.fillText('DISTRACCIONES: '+player.trail,30,75);
+
+if(score>=5){
+finished=true;
+document.getElementById('runnerResult').style.display='block';
+confetti({particleCount:180,spread:90,origin:{y:0.6}});
+return;
+}
+requestAnimationFrame(loop);
+}
+loop();
+}
+
+function downloadRewardCertificate(){
+const canvas=document.createElement('canvas');
+canvas.width=1000;
+canvas.height=700;
+const ctx=canvas.getContext('2d');
+const gradient=ctx.createLinearGradient(0,0,1000,700);
+gradient.addColorStop(0,'#050816');
+gradient.addColorStop(1,'#1d2671');
+ctx.fillStyle=gradient;
+ctx.fillRect(0,0,1000,700);
+ctx.strokeStyle='#00e5ff';
+ctx.lineWidth=6;
+ctx.strokeRect(30,30,940,640);
+ctx.shadowBlur=30;
+ctx.shadowColor='#00e5ff';
+ctx.fillStyle='#00e5ff';
+ctx.font='bold 50px Orbitron';
+ctx.fillText('CERTIFICADO DIGITAL',190,130);
+ctx.fillStyle='#ffffff';
+ctx.font='30px Poppins';
+ctx.fillText('Reconocimiento por completar los retos',190,220);
+ctx.fillText('de bienestar y responsabilidad digital.',190,270);
+ctx.fillStyle='#00ffb3';
+ctx.font='bold 38px Orbitron';
+ctx.fillText('MAESTRO DEL EQUILIBRIO',170,390);
+ctx.fillStyle='#ffffff';
+ctx.font='24px Poppins';
+ctx.fillText('Tu compromiso demuestra un uso más consciente',180,470);
+ctx.fillText('de la tecnología y las redes sociales.',210,515);
+ctx.fillStyle='#d500f9';
+ctx.font='bold 24px Orbitron';
+ctx.fillText(generatedCommitmentCode||'CÓDIGO PERSONAL',270,610);
+const link=document.createElement('a');
+link.download='certificado_digital.png';
+link.href=canvas.toDataURL();
+link.click();
+confetti({particleCount:250,spread:120,origin:{y:0.6}});
+}
+
+function downloadTicket(){
+markExplore('ticket');
+const name=document.getElementById('username').value||'Usuario Digital';
+const reflection=document.getElementById('reflection').value||'Promesa de mejorar mi bienestar digital';
+const canvas=document.createElement('canvas');
+canvas.width=900;
+canvas.height=500;
+const ctx=canvas.getContext('2d');
+const gradient=ctx.createLinearGradient(0,0,900,500);
+gradient.addColorStop(0,'#050816');
+gradient.addColorStop(1,'#1d2671');
+ctx.fillStyle=gradient;
+ctx.fillRect(0,0,900,500);
+ctx.strokeStyle='#00e5ff';
+ctx.lineWidth=4;
+ctx.strokeRect(20,20,860,460);
+ctx.shadowBlur=25;
+ctx.shadowColor='#00e5ff';
+ctx.fillStyle='#00e5ff';
+ctx.font='bold 42px Orbitron';
+ctx.fillText('TICKET DIGITAL',40,80);
+ctx.shadowBlur=15;
+ctx.fillStyle='#ffffff';
+ctx.font='26px Poppins';
+ctx.fillText('Nombre: '+name,40,160);
+ctx.font='22px Poppins';
+ctx.fillText('Fecha: '+new Date().toLocaleDateString(),40,210);
+ctx.fillStyle='#d500f9';
+ctx.font='bold 24px Poppins';
+ctx.fillText('REFLEXIÓN DIGITAL',40,280);
+ctx.fillStyle='#ffffff';
+ctx.font='20px Poppins';
+const lines=reflection.match(/.{1,55}/g)||[];
+lines.slice(0,4).forEach((line,i)=>{ctx.fillText(line,40,330+(i*35))});
+ctx.fillStyle='#00ff9d';
+ctx.font='bold 22px Orbitron';
+ctx.fillText('"Tu atención también vale en la vida real"',40,450);
+ctx.fillStyle='#00e5ff';
+for(let i=0;i<80;i++){ctx.fillRect(700+(i%2)*8,120+i*3,5,5)}
+ctx.strokeStyle='#d500f9';
+ctx.lineWidth=2;
+ctx.strokeRect(680,100,140,260);
+const link=document.createElement('a');
+link.download='ticket_digital_responsabilidad.png';
+link.href=canvas.toDataURL('image/png');
+link.click();
+confetti({particleCount:150,spread:90,origin:{y:0.6}});
+}
+
+const canvas=document.getElementById('bg');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+let particles=[];
+for(let i=0;i<100;i++){
+particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1,d:Math.random()*2})
+}
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle='rgba(0,229,255,.7)';
+particles.forEach(p=>{
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+ctx.fill();
+p.y+=p.d;
+if(p.y>canvas.height)p.y=0;
+})
+requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
